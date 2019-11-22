@@ -1,0 +1,83 @@
+[
+	{
+		"name": "Temperature",
+		"id": 1,
+		"units": "C",
+		"datasets": [
+			{
+				"name": "Inflow-1",
+				"id": 1,
+				"data": []
+			},
+			{
+				"name": "Inflow-2",
+				"id": 2,
+				"data": []
+			},
+			{
+				"name": "Reactor-1",
+				"id": 3,
+				"data": []
+			},
+			{
+				"name": "Reactor-2",
+				"id": 4,
+				"data": []
+			}
+		]
+	},
+	
+	{
+		"name": "Flow Rate",
+		"id": 2, 
+		"units": "L/min",
+		"datasets": [
+			{
+				"name": "Carbon Dioxide",
+				"id": 1,
+				"data": []
+			},
+			{
+				"name": "Argon",
+				"id": 2,
+				"data": []
+			},
+			{
+				"name": "Water",
+				"id": 3,
+				"data": []
+			},
+			{
+				"name": "Methane",
+				"id": 4,
+				"data": []
+			}
+		]
+	},
+	
+	{
+		"name": "Pressure",
+		"id": 3,
+		"units": "Pa",
+		"datasets": [
+			{
+				"name": "Reactor",
+				"id": 1,
+				"data": []
+			}
+		]
+	},
+	
+	{
+		"name": "TEMPLATE",
+		"id": -1,
+		"units": "?",
+		"datasets": [
+			{
+				"name": "TEMPLATE_NAME",
+				"id": -1,
+				"data": []
+			}
+		]
+	}
+]

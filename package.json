@@ -27,11 +27,13 @@
     "pree2e": "webpack --config=build/webpack.app.config.js --env=test --display=none && webpack --config=build/webpack.e2e.config.js --env=test --display=none",
     "e2e": "mocha temp/e2e.js --require source-map-support/register",
     "test": "npm run unit && npm run e2e",
-    "start": "node build/start.js",
+    "start": "electron main.js",
     "release": "npm test && webpack --config=build/webpack.app.config.js --env=production && electron-builder"
   },
   "dependencies": {
-    "fs-jetpack": "^2.1.0"
+    "electron-window-manager": "^1.0.6",
+    "fs-jetpack": "^2.1.0",
+    "serialport": "^8.0.5"
   },
   "devDependencies": {
     "@babel/core": "^7.5.5",
@@ -39,7 +41,7 @@
     "babel-loader": "^8.0.0-beta.4",
     "chai": "^4.1.0",
     "css-loader": "^3.1.0",
-    "electron": "^4.0.0",
+    "electron": "^4.2.12",
     "electron-builder": "^21.1.5",
     "electron-mocha": "^8.1.1",
     "friendly-errors-webpack-plugin": "^1.7.0",

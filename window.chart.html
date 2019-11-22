@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+
+	<!-- Stylesheets -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<link rel="stylesheet" href="./styles.css">
+
+	<!-- Scripts -->
+	<script>
+		delete module.exports
+	</script>
+	
+	<script src="https://code.jquery.com/jquery-3.2.1.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.5/Chart.bundle.min.js"></script>
+	<script>
+		const { remote } = require('electron');
+		const window_manager = remote.require('electron-window-manager');
+		
+		// IIFE
+		$(document).ready(function () {
+			function legend_click_handler(e, legendItem) {
+				function toggle_series(chart) {
+					let index = legendItem.datasetIndex;
+					let meta = chart.getDatasetMeta(index);
+
+					// See controller.isDatasetVisible comment
+					meta.hidden = meta.hidden === null ? !chart.data.datasets[index].hidden : null;
+					
+					// We hid a dataset ... rerender the chart
+					chart.update();
+				}
+				toggle_series(micro);
+				toggle_series(macro);
+			}
+			
+			const micro = new Chart(
+				document.getElementById("modal-dataplot-micro"), {
+				type: 'scatter',
+				// Set 'data' in charts.select()
+				data: {
+					datasets: []
+				},
+				options: {
+					responsive: true,
+					maintainAspectRatio: false,
+					title: {
+						display: true
+						// Set 'text' in 'charts.select()'
+					},
+					scales: {
+						xAxis: {
+							type: 'linear',
+							position: 'bottom'
+						},
+						yAxis: {
+							type: 'linear',
+							position: 'right',
+							// Set 'text' in charts.select()
+						}
+					},
+					legend: {
+						position: 'bottom',
+						onClick: legend_click_handler
+					},
+					animation: {
+						duration: 0
+					}
+				}
+			});
+			const macro = new Chart(
+				document.getElementById("modal-dataplot-macro"),  {
+				type: 'scatter',
+				// Set 'data' in charts.select()
+				data: {
+					datasets: []
+				},
+				options: {
+					responsive: true,
+					maintainAspectRatio: false,
+					title: {
+						display: true
+						// Set 'text' in 'charts.select()'
+					},
+					scales: {
+						xAxis: {
+							type: 'linear',
+							position: 'bottom'
+						},
+						yAxis: {
+							type: 'linear',
+							position: 'right',
+							// Set 'text' in charts.select()
+						}
+					},
+					legend: {
+						display: false
+					},
+					animation: {
+						duration: 0
+					}
+				}
+			});
+			
+			// Initialize the charts
+			function init_chart(chart) {
+				const datasets = window_manager.sharedData.fetch('Temperature');
+				const colors = ["#00AAAA", "#FF0000", "#AAAA00", "#0000FF"];
+				for (let i = 0; i < datasets.length; i++)
+				{
+					chart.data.datasets[i] = {
+						label: datasets[i].name,
+						fill: false,
+						borderColor: colors[i],
+						backgroundColor: colors[i],
+						data: datasets[i].data
+					};
+				}
+				
+				// Options
+				<!-- chart.options.title.text = datatype.name; -->
+				<!-- if (x_axis === undefined) -->
+					<!-- chart.options.scales.xAxis.text = 'Time [s]'; -->
+				<!-- chart.options.scales.yAxis.text = datatype.name + ' [' + datatype.units + ']'; -->
+				<!-- } -->
+				chart.update();
+			};
+
+			init_chart(micro);
+			init_chart(macro);
+			
+			// Set up the data update listener
+			window_manager.sharedData.watch('Temperature', (prop, action, new_value) => {
+				function update_chart(chart) {
+					for (let i = 0; i < new_value.length; i++)
+					{
+						let dataset_index = chart.data.datasets.findIndex(
+							data => data.label === new_value[i].name);
+						if (dataset_index !== -1)
+						{
+							chart.data.datasets[dataset_index].data = 
+								chart.data.datasets[dataset_index].data.concat(
+									...new_value[i].data
+							);
+						}
+					}
+					
+					// Renders the update
+					chart.update();
+				}
+				
+				update_chart(micro);
+				update_chart(macro);
+			});
+
+			<!-- window.addEventListener('resize', ()=> { -->
+				<!-- let _micro = document.getElementById("modal-dataplot-micro"); -->
+				<!-- _micro.width; -->
+				<!-- _micro.height; -->
+				<!-- let _macro = document.getElementById("modal-dataplot-macro"); -->
+				<!-- _macro.width = 50; -->
+				<!-- _macro.height = 50; -->
+			<!-- }); -->
+		});
+	</script>
+</head>
+
+<body>
+	<h1>Temperature</h1>
+	<div style="position: relative; width: 99vw; height: 45vh; display: block">
+		<canvas id="modal-dataplot-micro" class="chart"></canvas>
+	</div>
+	<div style="position: relative; width: 99vw; height: 40vh; display: block">
+		<canvas id="modal-dataplot-macro" class="chart"></canvas>
+	</div>
+</body>
+
+</html>

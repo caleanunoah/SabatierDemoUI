@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+
+  <title>Activity Monitor</title>
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link rel="stylesheet" href="./styles.css">
+
+  <!-- Scripts -->
+  <script>
+    delete module.exports
+  </script>
+  <script src="https://code.jquery.com/jquery-3.2.1.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.5/Chart.bundle.min.js"></script>
+  <script src="./renderer.js"></script>
+  
+</head>
+
+<body>
+	<div class="title-container">
+		<div class="title-logo">
+			<image src="assets/ubcmc-logo-transparent_small.png"></image>
+		</div>
+		<div class="title-text">
+			<h1>Sabatier Reactor Monitor</h1>
+			<h3>UBC Mars Colony<h3/>
+		</div>
+		<hr/>
+	</div>
+	
+	<div class="horz-container">
+		<div class="content-panel reactor-commands">
+			<div class="button-stack">
+				<p>Reactor Status: <span id="reactor-status">Unknown</span></p>
+				<button onclick="notebook.test()">
+					REACTOR START
+				</button>
+				<button onclick="notebook.append('Reactor STOP Routine Requested', notebook.severity.ERROR)">
+					REACTOR STOP
+				</button>
+			</div>
+		</div>
+		<div class="content-panel reactor-console">
+			<pre id="reactor-console-output" class="console"></pre>
+			<button onclick="notebook.clear()">CLEAR CONSOLE</button>
+		</div>
+		<div class="content-panel reactor-dataplots">
+			<h4 id="dataplot-title" style="text-align: center">-</h4>
+			<div style="position: relative; width: 100%; height: 45%">
+				<canvas id="dataplot-micro" class="chart"></canvas>
+			</div>
+			<div style="position: relative; width: 100%; height: 40%">
+				<canvas id="dataplot-macro" class="chart"></canvas>
+			</div>
+			<div id="dataplot-selectors" style="text-align: center">
+				<select id="dataplot-selector-preset" onchange="select_plot(this)">
+					<option selected disabled hidden value="title">Show Preset Chart</option>
+				</select>
+				<!-- <select id="dataplot_selector_custom" onchange="alert('Not Implemented')"> -->
+					<!-- <option selected disabled value="title">Show Custom Chart</option> -->
+					<!-- <option onclick=><i>Add</i></option> -->
+				<!-- </select> -->
+				<button onclick="charts.popped.create(reactor_data.find(d => charts.primary.micro.options.scales.yAxis.text.includes(d.name)))">[] -> [[=]</button>
+				<button onclick="charts.popped.close_all()">[[X]</button>
+			</div>
+		</div>
+	</div>
+</body>
+
+</html>
