@@ -1,6 +1,0 @@
-class Reactor {
-
-	constructor() {
-	}
-
-}

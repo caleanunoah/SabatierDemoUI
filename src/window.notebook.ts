@@ -1,39 +1,45 @@
-const notebook = {};  // Exported module
-
-notebook.severity = {
-	ERROR: 		'#FF0000',
-	WARNING: 	'#FFFF00',
-	VERBOSE:	'#FFFFFF'
+enum Severity {
+	ERROR = 	'#FF0000',
+	WARNING = 	'#FFFF00',
+	VERBOSE =	'#FFFFFF'
 };
+export const ERROR = Severity.ERROR;
+export const WARNING = Severity.WARNING;
+export const VERBOSE = Severity.VERBOSE;
 
-let linecount = 0;
-notebook.append = function(str, severity) {
+let bottom_line_id = 0;
+export function append(str: string, severity?: Severity)
+{
 	console.log("Printed to Console: '" + str + "'");
 	/*
 	 * Function sets text color based on severity 
 	 */
-	let line_id = 'console-line-' + linecount++;
+	let line_id = 'console-line-' + ++bottom_line_id;
 	let fmt_str = '<span '
 				+ 'id="' + line_id + '" '
-				+ 'style="color: ' + (severity || notebook.severity.VERBOSE) + '">'
+				+ 'style="color: ' + (severity || Severity.VERBOSE) + '">'
 				+ str
 				+ '</span>\n';
 	
 	// Append the string
 	document.getElementById("reactor-console-output").innerHTML += fmt_str;
-	// Scroll to bottom
-	document.getElementById(line_id).scrollIntoView();
+	scroll_to_bottom();
 }
 
-notebook.clear = function () {
+export function scroll_to_bottom()
+{
+	document.getElementById('console-line-' + bottom_line_id).scrollIntoView();
+}
+
+export function clear() {
 	console.log('Clearing Console');
 	document.getElementById("reactor-console-output").innerHTML = '';
 }
 
 
-notebook.test = function() {
-	notebook.append("Reactor Started!");
-	notebook.append("Received data is simulated!", notebook.severity.WARNING)
+export function test() {
+	append("Reactor Started!");
+	append("Received data is simulated!", Severity.WARNING)
 	// notebook.append("---Reactor Console Test Start---");
 	// notebook.append("This is a verbose output. It should be WHITE",
 		// notebook.severity.VERBOSE);
@@ -43,4 +49,3 @@ notebook.test = function() {
 		// notebook.severity.ERROR);
 	// notebook.append("---Reactor Console Test Finished---");
 }
-module.exports = notebook;

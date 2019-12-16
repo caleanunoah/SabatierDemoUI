@@ -12,13 +12,14 @@
 
   <!-- Scripts -->
   <script>
-    delete module.exports
+    delete module.exports;
+	var exports = {"__esModule": true};
   </script>
   <script src="https://code.jquery.com/jquery-3.2.1.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.5/Chart.bundle.min.js"></script>
-  <script src="./renderer.js"></script>
-  
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.5/Chart.bundle.min.js"></script> -->
+  <script src="./dist/renderer.js"></script>
+	
 </head>
 
 <body>
@@ -37,11 +38,17 @@
 		<div class="content-panel reactor-commands">
 			<div class="button-stack">
 				<p>Reactor Status: <span id="reactor-status">Unknown</span></p>
-				<button onclick="notebook.test()">
+				<button id="connect-toggle-button" style="margin-bottom: 10ex;" onclick="routine_connect_toggle()">
+					CONNECT
+				</button>
+				<button onclick="routine_start()">
 					REACTOR START
 				</button>
-				<button onclick="notebook.append('Reactor STOP Routine Requested', notebook.severity.ERROR)">
+				<button onclick="routine_stop()">
 					REACTOR STOP
+				</button>
+				<button style="background-color: #FF0000" onclick="notebook.append('Emergency STOP Requested', notebook.severity.ERROR)">
+					EMERGENCY STOP
 				</button>
 			</div>
 		</div>
@@ -59,7 +66,7 @@
 			</div>
 			<div id="dataplot-selectors" style="text-align: center">
 				<select id="dataplot-selector-preset" onchange="select_plot(this)">
-					<option selected disabled hidden value="title">Show Preset Chart</option>
+					<option selected disabled hidden value="title">Plot Data</option>
 				</select>
 				<!-- <select id="dataplot_selector_custom" onchange="alert('Not Implemented')"> -->
 					<!-- <option selected disabled value="title">Show Custom Chart</option> -->

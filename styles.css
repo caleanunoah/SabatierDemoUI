@@ -40,6 +40,9 @@ button {
 button:hover {
 	background-color: orange;
 }
+button:disabled {
+	background-color: grey;
+}
 
 select {
 	color: whitesmoke;
@@ -141,6 +144,13 @@ select option:disabled {
 }
 
 /* Applies to a selected dropdown item */
-.horz-container .reactor-dataplots #dataplot-selectors select option.selected {
+.horz-container .reactor-dataplots #dataplot-selectors select option#selected {
+	/* font-weight: bolder; */
+	background-color: #B29C77;
+}
+.horz-container .reactor-dataplots #dataplot-selectors select option.set {
 	font-weight: bolder;
+}
+.horz-container .reactor-dataplots #dataplot-selectors select option.series {
+	font-style: italic;
 }

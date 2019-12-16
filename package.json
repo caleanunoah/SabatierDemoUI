@@ -12,6 +12,7 @@
     "appId": "com.example.electron-boilerplate",
     "files": [
       "app/**/*",
+      "src/**/*",
       "node_modules/**/*",
       "package.json"
     ],
@@ -27,10 +28,17 @@
     "pree2e": "webpack --config=build/webpack.app.config.js --env=test --display=none && webpack --config=build/webpack.e2e.config.js --env=test --display=none",
     "e2e": "mocha temp/e2e.js --require source-map-support/register",
     "test": "npm run unit && npm run e2e",
-    "start": "electron main.js",
+    "build": "tsc",
+    "watch": "tsc -w",
+    "lint": "tslint -c tslint.json -p tsconfig.json",
+    "start": "npm run build && electron ./dist/main.js",
     "release": "npm test && webpack --config=build/webpack.app.config.js --env=production && electron-builder"
   },
   "dependencies": {
+    "@types/chart.js": "^2.9.5",
+    "@types/jquery": "^3.3.31",
+    "@types/serialport": "^7.0.4",
+    "chart.js": "^2.9.3",
     "electron-window-manager": "^1.0.6",
     "fs-jetpack": "^2.1.0",
     "serialport": "^8.0.5"
@@ -49,6 +57,8 @@
     "source-map-support": "^0.5.6",
     "spectron": "^6.0.0",
     "style-loader": "^0.23.1",
+    "tslint": "^5.20.1",
+    "typescript": "^3.7.2",
     "webpack": "^4.38.0",
     "webpack-cli": "^3.3.6",
     "webpack-merge": "^4.1.3",

@@ -1,14 +1,13 @@
-const {app, BrowserWindow} = require('electron')
+import {app, BrowserWindow} from "electron";
 const path = require('path')
 const url = require('url')
 
-let window = null
-let reactor_data = null
+let electron_window: Electron.BrowserWindow = null;
 
 // Wait until the app is ready
 app.once('ready', () => {
   // Create a new window
-  window = new BrowserWindow({
+  electron_window = new BrowserWindow({
     // Set the initial width to 500px
     width: 1366,
     // Set the initial height to 400px
@@ -21,13 +20,13 @@ app.once('ready', () => {
     show: false
   })
 
-  window.loadURL(url.format({
-    pathname: path.join(__dirname, 'window.html'),
-    protocol: 'file:',
-    slashes: true
-  }))
-
-  window.once('ready-to-show', () => {
-    window.show()
+  electron_window.loadURL(path.join(__dirname, "../window.html"));
+  // url.format({
+    // pathname: path.join(__dirname, '../../window.html'),
+    // protocol: 'file:',
+    // slashes: true
+  // }))
+  electron_window.once('ready-to-show', () => {
+    electron_window.show();
   })  
 })
