@@ -56,7 +56,7 @@ $(document).ready(function () {
 			return;
 		serial.detect()
 			.then((ports: Array<any>) => {
-				console.log(ports)
+				// console.log(ports)
 				if (ports.length === 0)
 				{
 					status_indicator.update(status_indicator.SCANNING);
@@ -67,7 +67,7 @@ $(document).ready(function () {
 					status_indicator.update(status_indicator.ATTACHED);
 					if (ports.length > 1)
 						notebook.append("Multiple COM Ports detected! Selecting " + ports[0].path, notebook.WARNING);
-					console.log("PORT DETECTED: " + ports[0].path);
+					// console.log("PORT DETECTED: " + ports[0].path);
 					serial.attach(ports[0].path, (bytestream: number[]) => {
 						if (!bytestream)
 							return;
@@ -92,7 +92,7 @@ $(document).ready(function () {
 				}
 			})
 			.catch((e: Error) => alert(e));
-	}, 2500);
+	}, 500);
 });
 
 function select_plot(selector: HTMLSelectElement)
