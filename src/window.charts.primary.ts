@@ -58,7 +58,7 @@ export function init() {
 						gridLines: {display: false},
 						scaleLabel: {
 							display: true,
-							labelString: "Micro-Scale"
+							labelString: "Micro"
 						}
 					},
 				]
@@ -84,7 +84,7 @@ export function init() {
 			maintainAspectRatio: false,
 			title: {
 				display: false,
-				text: "Macro-Scale"
+				text: "Macro"
 				// Set 'text' in 'charts.select()'
 			},
 			scales: {
