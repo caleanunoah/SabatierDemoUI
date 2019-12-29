@@ -1,13 +1,13 @@
-export let primary: any = null;
-export let popped: any = null;
+import * as primary from "./chart.primary";
+import * as popped from "./chart.popped";
+export { primary, popped };
 
 /*
  * chart_options is an array of name-id pairs.
  */
-export function init_charts() {
-	primary 	= require("./window.charts.primary");
+export function init_charts()
+{
 	primary.init();
-	popped 	= require("./window.charts.popped");
 }
 
 type SetOrSeries = "set" | "series";

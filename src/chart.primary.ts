@@ -36,7 +36,7 @@ export function init() {
 			maintainAspectRatio: false,
 			title: {
 				display: false,
-				text: "Micro-Scale"
+				text: "Micro"
 				// Set 'text' in 'charts.select()'
 			},
 			scales: {
@@ -107,7 +107,7 @@ export function init() {
 						gridLines: {display: false},
 						scaleLabel: {
 							display: true,
-							labelString: "Macro-Scale"
+							labelString: "Macro"
 						}
 					},
 				]
@@ -154,18 +154,23 @@ export function update(dataset: Dataset) {
 		micro.data.datasets[i].data = micro.data.datasets[i].data.concat(mapped_data);
 	}
 	
-	// Restrict the range of the micro plot
+	// Make the x-axis max scale consistently
 	let max_xval = 0;
 	for (let series of micro.data.datasets)
 		if ((series.data[series.data.length - 1] as Chart.ChartPoint).x as number > max_xval)
 			max_xval = (series.data[series.data.length - 1] as Chart.ChartPoint).x as number;
-
+	
+	macro.options.scales.xAxes[0].ticks.suggestedMax = Math.ceil(max_xval / 2) * 2;
+	micro.options.scales.xAxes[0].ticks.suggestedMax = Math.ceil(max_xval / 2) * 2;
+	
+	// Cut off the micro-scale plot
+	// 1. Make sure the axis scales consistently
 	const micro_cutoff = Math.ceil(max_xval / 2) * 2 - Math.floor(MICRO_TIME_SPAN / 2) * 2;
 	micro.options.scales.xAxes[0].ticks.suggestedMin = (micro_cutoff > 0 ? micro_cutoff : 0);
-	micro.options.scales.xAxes[0].ticks.suggestedMax = Math.ceil(max_xval / 2) * 2;
 	// Filter values to those in the desired range
 	for (let i = 0; i < micro.data.datasets.length; i++)
 		micro.data.datasets[i].data =
+			// Typescript doesn't like the filter call.
 			// @ts-ignore
 			micro.data.datasets[i].data.filter((dp: Chart.ChartPoint) => dp.x > micro_cutoff);
 	
