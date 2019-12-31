@@ -140,10 +140,7 @@ export function update(dataset: Dataset) {
 	// Append data to the plots
 	for (let series of dataset.series)
 	{	
-		let i = macro.data.datasets.findIndex((ds) => {
-			console.log("Comparing: ", ds.label, series.name);
-			return ds.label === series.name;
-		});
+		let i = macro.data.datasets.findIndex((ds) => ds.label === series.name);
 		if (i === -1)
 			break;
 
