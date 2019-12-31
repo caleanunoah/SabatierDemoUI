@@ -1,29 +1,28 @@
-import { Dataset } from  "./models/data.model" 
+import { Dataset } from  "./models/data.model";
 import { remote } from "electron";
 const window_manager = remote.require('electron-window-manager');
 
-export function create(dataset: Dataset) {
+export function pop(dataset_name: string) {
 	// Prepare the data
-	if (window_manager.get(dataset.name) != undefined)
+	if (window_manager.get(dataset_name))
 	{
-		window_manager.restore(dataset.name);
+		console.log("Window already popped! Bringing to front...");
+		window_manager.restore(dataset_name);
 		return;
 	}
 	
 	window_manager.open(
-		dataset.name,
-		dataset.name,
-		("file://" + __dirname + "/window.chart.html"),
+		dataset_name,
+		dataset_name,
+		("file://" + __dirname + "../window.chart.html"),
 		false,
 		{ resizable: true }
 	);
 };
 
-export function update(dataset: Dataset)
+export function update(datasets: Array<Dataset>)
 {
-	// Setting the variable will trigger the data observers.
-	// To save memory, only update with new data.
-	window_manager.sharedData.set(dataset.name, dataset);
+	window_manager.sharedData.set("datasets", datasets);
 }
 
 export function close_all()
