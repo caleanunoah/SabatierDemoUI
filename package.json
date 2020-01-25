@@ -4,12 +4,12 @@
   "description": "Starter for your Electron application",
   "version": "0.0.0",
   "private": true,
-  "author": "Mr. Gumby <mr.gumby@example.com>",
-  "copyright": "© 2017, Gumby inc.",
-  "homepage": "http://example.com",
+  "author": "Thomas Richmond <thomas.joakim@gmail.com>",
+  "copyright": "© 2019, UBC Mars Colony",
+  "homepage": "https://ubcmarscolony.wordpress.com/",
   "main": "app/background.js",
   "build": {
-    "appId": "com.example.electron-boilerplate",
+    "appId": "ubcmc.userinterface",
     "files": [
       "app/**/*",
       "src/**/*",
@@ -32,7 +32,8 @@
     "watch": "tsc -w",
     "lint": "tslint -c tslint.json -p tsconfig.json",
     "start": "npm run build && electron ./dist/main.js",
-    "release": "npm test && webpack --config=build/webpack.app.config.js --env=production && electron-builder"
+    "release": "npm test && webpack --config=build/webpack.app.config.js --env=production && electron-builder",
+    "scss-compile": "node-sass -rw ./ -o ./"
   },
   "dependencies": {
     "@types/chart.js": "^2.9.5",
@@ -54,6 +55,7 @@
     "electron-mocha": "^8.1.1",
     "friendly-errors-webpack-plugin": "^1.7.0",
     "mocha": "^6.2.0",
+    "node-sass": "^4.13.1",
     "source-map-support": "^0.5.6",
     "spectron": "^6.0.0",
     "style-loader": "^0.23.1",
