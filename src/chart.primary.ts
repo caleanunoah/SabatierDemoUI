@@ -2,7 +2,7 @@ import { Dataset, Datapoint } from "./models/data.model";
 import Chart from "chart.js";
 
 const MICRO_TIME_SPAN = 15;
-let MAX_MACRO_POINTS = 100;
+let MAX_MACRO_POINTS = 1;
 
 export let micro: Chart = null;
 export let macro: Chart = null;
@@ -162,37 +162,34 @@ export function update(dataset: Dataset) {
 	micro.options.scales.xAxes[0].ticks.suggestedMax = Math.ceil(max_xval / 2) * 2;
 	
 	// Minify the macro-scale plot data if it's too large
-	// for (let i = 0; i < macro.data.datasets.length; i++)
-	// {
-		// if (macro.data.datasets[i].data.length > MAX_MACRO_POINTS)
-		// {
-			// let base = macro.data.datasets[i].data
-				// // @ts-ignore
-				// .filter((dp: Chart.ChartPoint) => dp.y)
+	for (let i = 0; i < macro.data.datasets.length; i++)
+	{
+		if (macro.data.datasets[i].data.length > MAX_MACRO_POINTS)
+		{
+			let base: number = (macro.data.datasets[i].data[0] as Chart.ChartPoint).y as number;
+			
+				// macro.data.datasets[i].data
+				// // @ts-ignore		
+				// .map((dp: Chart.ChartPoint) => dp.y)
 				// // @ts-ignore
 				// .reduce((sum: number, next: number) => sum + next);
-			// base /= macro.data.datasets[i].data.length;
-
-			// macro.data.datasets[i].data = 
-				// // @ts-ignore
-				// macro.data.datasets[i].data.filter((dp: Chart.ChartPoint) => {
-					// if (
-					// Math.abs(
-					// dp.y - 
-					// base) / 
-					// Math.abs(base) > 
-					// 0.20)
-					// {
-						// base = dp.y;
-						// return true;
-					// }
-					// else
-						// return false;
-				// });
+			base /= macro.data.datasets[i].data.length;
+			console.log(base)
+			macro.data.datasets[i].data = 
+				// @ts-ignore
+				macro.data.datasets[i].data.filter((dp: Chart.ChartPoint) => {
+					if (Math.abs(dp.y as number - base) / Math.abs(base) > 0.20)
+					{
+						base = dp.y as number;
+						return true;
+					}
+					else
+						return false;
+				});
 			
-			// MAX_MACRO_POINTS += macro.data.datasets[i].data.length;
-		// }
-	// }
+			MAX_MACRO_POINTS += macro.data.datasets[i].data.length;
+		}
+	}
 	
 	// Cut off the micro-scale plot
 	// 1. Make sure the axis scales consistently
