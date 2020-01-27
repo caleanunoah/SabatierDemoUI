@@ -166,28 +166,9 @@ export function update(dataset: Dataset) {
 	{
 		if (macro.data.datasets[i].data.length > MAX_MACRO_POINTS)
 		{
-			let base: number = (macro.data.datasets[i].data[0] as Chart.ChartPoint).y as number;
-			
-				// macro.data.datasets[i].data
-				// // @ts-ignore		
-				// .map((dp: Chart.ChartPoint) => dp.y)
-				// // @ts-ignore
-				// .reduce((sum: number, next: number) => sum + next);
-			base /= macro.data.datasets[i].data.length;
-			console.log(base)
-			macro.data.datasets[i].data = 
-				// @ts-ignore
-				macro.data.datasets[i].data.filter((dp: Chart.ChartPoint) => {
-					if (Math.abs(dp.y as number - base) / Math.abs(base) > 0.20)
-					{
-						base = dp.y as number;
-						return true;
-					}
-					else
-						return false;
-				});
-			
-			MAX_MACRO_POINTS += macro.data.datasets[i].data.length;
+			convolute_chart(macro);
+			MAX_MACRO_POINTS *= 1.20;
+			break;
 		}
 	}
 	
@@ -248,4 +229,43 @@ export function select(dataset: Dataset, visible_dataset_id?: number) {
 	
 	document.getElementById("dataplot-title").innerHTML = dataset.name;
 	current_plot = dataset.name;
+}
+
+/*
+ * Author: Thomas Richmond
+ * Purpose: Reduce the number of datapoints in the chart such that we
+ *			retain as few points as needed while still indicating the
+ *			plot behaviour. For instance, the sequential values 
+ *			{ 0.9, 1.1, 1.05, 1.02, 0.95 } may as well be represented by
+ *			a single datapoint (~1) and we can let a bezier curve fit the
+ *			rest of the the data.
+ */
+function convolute_chart(chart: Chart)
+{
+	for (let i = 0; i < chart.data.datasets.length; i++)
+	{
+		let base = (macro.data.datasets[i].data[0] as Chart.ChartPoint).y as number;
+		base /= macro.data.datasets[i].data.length;	
+			// Start with the average (deprecated)
+			// macro.data.datasets[i].data
+			// // @ts-ignore		
+			// .map((dp: Chart.ChartPoint) => dp.y)
+			// // @ts-ignore
+			// .reduce((sum: number, next: number) => sum + next);
+		console.log(base)
+		let last = (macro.data.datasets[i].data[macro.data.datasets[i].data.length - 1] as Chart.ChartPoint).y as number;
+		macro.data.datasets[i].data = 
+			// @ts-ignore
+			macro.data.datasets[i].data.filter((dp: Chart.ChartPoint) => {
+				if (Math.abs(dp.y as number - base) / Math.abs(base) > 0.20)
+				{
+					base = dp.y as number;
+					return true;
+				}
+				else
+					return false;
+			});
+		if (macro.data.datasets[i].data.length == 1)
+			macro.data.datasets[i].data.push(last);
+	}
 }
