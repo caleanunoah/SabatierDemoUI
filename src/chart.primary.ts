@@ -145,7 +145,9 @@ export function update(dataset: Dataset) {
 		if (i === -1)
 			break;
 
-		const mapped_data = series.data.map((dp: Datapoint) => ({x: dp.time, y: dp.value}) as Chart.ChartPoint);
+		const mapped_data = series.data
+			.map((dp: Datapoint) => ({x: dp.time, y: dp.value}) as Chart.ChartPoint)
+			.filter((cp: Chart.ChartPoint) => cp.x != undefined && cp.y != undefined);
 		// @ts-ignore
 		macro.data.datasets[i].data = macro.data.datasets[i].data.concat(mapped_data);
 		// @ts-ignore
@@ -166,7 +168,7 @@ export function update(dataset: Dataset) {
 	{
 		if (macro.data.datasets[i].data.length > MAX_MACRO_POINTS)
 		{
-			convolute_chart(macro);
+			convolute_chart(macro, 0.20);
 			MAX_MACRO_POINTS *= 1.20;
 			break;
 		}
@@ -239,33 +241,62 @@ export function select(dataset: Dataset, visible_dataset_id?: number) {
  *			{ 0.9, 1.1, 1.05, 1.02, 0.95 } may as well be represented by
  *			a single datapoint (~1) and we can let a bezier curve fit the
  *			rest of the the data.
+ * Parameters: chart [Chart] - The chart whose data you wish to convolute
+ *			   strength [number] - The maximum percent error between datapoints
+ *			 					   for which data will be convoluted.
+ *								   Value must be positive.
  */
-function convolute_chart(chart: Chart)
+function convolute_chart(chart: Chart, strength: number)
 {
+	if (strength < 0)
+		throw new RangeError("Convoluter strength must be greater than zero!");
+	
 	for (let i = 0; i < chart.data.datasets.length; i++)
 	{
-		let base = (macro.data.datasets[i].data[0] as Chart.ChartPoint).y as number;
-		base /= macro.data.datasets[i].data.length;	
-			// Start with the average (deprecated)
-			// macro.data.datasets[i].data
-			// // @ts-ignore		
-			// .map((dp: Chart.ChartPoint) => dp.y)
-			// // @ts-ignore
-			// .reduce((sum: number, next: number) => sum + next);
-		console.log(base)
-		let last = (macro.data.datasets[i].data[macro.data.datasets[i].data.length - 1] as Chart.ChartPoint).y as number;
-		macro.data.datasets[i].data = 
-			// @ts-ignore
-			macro.data.datasets[i].data.filter((dp: Chart.ChartPoint) => {
-				if (Math.abs(dp.y as number - base) / Math.abs(base) > 0.20)
-				{
-					base = dp.y as number;
-					return true;
-				}
-				else
-					return false;
-			});
-		if (macro.data.datasets[i].data.length == 1)
-			macro.data.datasets[i].data.push(last);
+		if (chart.data.datasets[i].data.length === 0)
+			break;
+		
+		// Create a convolution buffer for convenience
+		let conv_buffer = macro.data.datasets[i].data as Array<Chart.ChartPoint>;
+
+		// We'll start with the first value and convolute data
+		// based on divergence from it. Once a value diverges
+		// significantly, base is assigned that value (in loop).
+		let base: number = null;
+		let last: Chart.ChartPoint = conv_buffer[conv_buffer.length - 1];
+		
+		// Assign the data to the actual chart array,
+		// rather than our buffer
+		conv_buffer = conv_buffer.filter((dp: Chart.ChartPoint) =>
+		{
+			let val = dp.y as number;
+			// CONVOLUTION ALGORITHM:
+			// 1. If our base is null, we haven't set it yet.
+			// 	   This preserves the first value of the series.
+			// 2. If our percent error is within the strength of the
+			//    convoluter, remove the datapoint.
+			// 3. If neither of the above conditions are met, keep the datapoint.
+			if (base == null)
+			{
+				base = val;
+				return true;
+			}	
+			else if (Math.abs(val - base) / Math.abs(base) > strength)
+			{
+				base = val;
+				return true;
+			}
+			else
+				return false;
+		});
+		
+		conv_buffer.push(last);
+		
+		// If we filtered all but one value (the initial base),
+		// add the last value. This ensures a curve exists 
+		// at all times
+		
+		// Repopulate the chart data array with the convoluted data.
+		macro.data.datasets[i].data = conv_buffer;
 	}
 }
