@@ -3,6 +3,7 @@ import Chart from "chart.js";
 
 const MICRO_TIME_SPAN = 15;
 let MAX_MACRO_POINTS = 1;
+const CONVOLUTER_STRENGTH = 0.20
 
 export let micro: Chart = null;
 export let macro: Chart = null;
@@ -163,15 +164,11 @@ export function update(dataset: Dataset) {
 	macro.options.scales.xAxes[0].ticks.suggestedMax = Math.ceil(max_xval / 2) * 2;
 	micro.options.scales.xAxes[0].ticks.suggestedMax = Math.ceil(max_xval / 2) * 2;
 	
-	// Minify the macro-scale plot data if it's too large
-	for (let i = 0; i < macro.data.datasets.length; i++)
+	// Convolute the macro-scale plot data so we don't keep re-rendering a ton of data
+	if (macro.data.datasets.some((s: Chart.ChartDataSets) => s.data.length > MAX_MACRO_POINTS))
 	{
-		if (macro.data.datasets[i].data.length > MAX_MACRO_POINTS)
-		{
-			convolute_chart(macro, 0.20);
-			MAX_MACRO_POINTS *= 1.20;
-			break;
-		}
+		convolute_chart(macro, CONVOLUTER_STRENGTH);
+		MAX_MACRO_POINTS *= 1.20;		
 	}
 	
 	// Cut off the micro-scale plot
@@ -185,6 +182,7 @@ export function update(dataset: Dataset) {
 			// @ts-ignore
 			micro.data.datasets[i].data.filter((dp: Chart.ChartPoint) => dp.x > micro_cutoff);
 	
+	// Push the update to the screen
 	micro.update();
 	macro.update();
 }
@@ -193,7 +191,8 @@ export function update(dataset: Dataset) {
 //		type_id: ID of the type of data to show;
 //		dataset_id: ID of the specific dataset of the type
 // If x_axis is undefined, it defaults to time
-export function select(dataset: Dataset, visible_dataset_id?: number) {
+export function select(dataset: Dataset, visible_dataset_id?: number)
+{
 	function configure_chart(chart: Chart) {
 		chart.data.datasets = [];  // Don't do .length = 0, as this may clear the actual dataset
 		// console.log("---------");
@@ -223,11 +222,18 @@ export function select(dataset: Dataset, visible_dataset_id?: number) {
 			chart.options.scales.xAxes[0].scaleLabel.labelString = 'Time [s]';
 			chart.options.scales.yAxes[0].scaleLabel.labelString = '[' + dataset.units + ']';
 		}
-		chart.update();
 	};
 	
+	// Set the charts to the current data
 	configure_chart(macro);
 	configure_chart(micro);
+	
+	// Reduce the amount of data we show
+	convolute_chart(macro, CONVOLUTER_STRENGTH)
+	
+	// Update the chart visuals
+	macro.update();
+	micro.update();
 	
 	document.getElementById("dataplot-title").innerHTML = dataset.name;
 	current_plot = dataset.name;
@@ -290,11 +296,9 @@ function convolute_chart(chart: Chart, strength: number)
 				return false;
 		});
 		
+		// Make sure the most recent value is pushed, ensuring we can
+		// always generate a curve.
 		conv_buffer.push(last);
-		
-		// If we filtered all but one value (the initial base),
-		// add the last value. This ensures a curve exists 
-		// at all times
 		
 		// Repopulate the chart data array with the convoluted data.
 		macro.data.datasets[i].data = conv_buffer;
