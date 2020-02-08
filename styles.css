@@ -1,0 +1,156 @@
+/* PRE-CSS */
+@font-face {
+  font-family: "Comfortaa";
+  src: url(./assets/fonts/Comfortaa-VariableFont_wght.ttf) format("truetype");
+}
+
+/* STYLES */
+
+html {
+  -webkit-app-region: drag;
+}
+
+body {
+	overflow-x: hidden;
+	overflow-y: hidden;
+}
+
+
+/*
+ * GLOBAL STYLES
+ */
+* {
+	font-family: Comfortaa;
+}
+
+h1 {
+	color: #B01513;	
+}
+
+h3 {
+	color: #B57915;
+}
+
+button {
+	color: whitesmoke;
+	background-color: orangered;
+	padding: 1ex 2em;
+	margin: 1ex 0;
+}
+button:hover {
+	background-color: orange;
+}
+button:disabled {
+	background-color: grey;
+}
+
+select {
+	color: whitesmoke;
+	background-color: orangered;
+	padding: 1ex 2em;
+	margin: 1ex 0;
+}
+select option {
+	color: black;
+	background-color: #B57915;
+}
+select option:disabled {
+	text-decoration: underline;
+}
+
+/*
+ * TITLE STYLES
+ */
+.title-container {
+	height: 20vh;
+	margin: 2ex 1em;
+}
+
+.title-container div{
+	display: inline-block;
+	*display: inline;
+	margin: 0 1em;
+}
+
+.title-container .title-logo {
+	height: inherit;
+	position: absolute;	 /* Element ignores default HTML positioning */
+	z-index: 1;  /* Places element below the text */
+}
+
+.title-container .title-logo img {
+	height: 75%;
+}
+
+.title-container .title-text {
+	/* Ensures text is at center of screen */
+	width: 100%;
+	text-align: center;
+	
+	z-index: auto;  /* Places element above the logo */
+}
+
+
+/*
+ * CONTENT STYLES
+ */
+.horz-container {
+	width: 100vw;
+	height: 70vh;
+	margin: 0 1em;
+}
+
+.horz-container .content-panel {
+	vertical-align: top;
+	display: inline-block;
+	*display: inline;
+	margin: 0 1em;
+}
+
+.horz-container .reactor-commands {
+	width: 15%;
+	margin-left: 0;
+}
+
+.horz-container .reactor-commands .button-stack {
+	display: flex; 
+	flex-direction: column;
+}
+
+.horz-container .reactor-console {
+	width: 30%;
+	height: inherit;
+	text-align: center;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.horz-container .reactor-console .console {
+	width: 100%;
+	height: 90%;
+    color: whitesmoke;
+    background-color: black;
+    text-align: left;
+}
+
+.horz-container .reactor-console .console span {
+    font-family: monospace;
+}
+
+.horz-container .reactor-dataplots {
+	width: 50%;
+	height: inherit;
+	margin-left: 2em;
+}
+
+/* Applies to a selected dropdown item */
+.horz-container .reactor-dataplots #dataplot-selectors select option#selected {
+	/* font-weight: bolder; */
+	background-color: #B29C77;
+}
+.horz-container .reactor-dataplots #dataplot-selectors select option.set {
+	font-weight: bolder;
+}
+.horz-container .reactor-dataplots #dataplot-selectors select option.series {
+	font-style: italic;
+}
