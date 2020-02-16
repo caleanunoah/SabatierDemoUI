@@ -1,0 +1,141 @@
+@import "mars-colony";
+
+html {
+  -webkit-app-region: drag;
+}
+
+body {
+	overflow-x: hidden;
+	overflow-y: hidden;
+}
+
+
+* {
+	font-family: Comfortaa;
+} 
+
+h1 {
+	color: $mc-red;	
+}
+
+h3 {
+	color: $mc-orange;
+}
+
+button {
+	color: whitesmoke;
+	background-color: orangered;
+	padding: 1ex 2em;
+	margin: 1ex 0;
+
+	:hover {
+		background-color: orange;
+	}
+
+	:disabled {
+		background-color: grey;
+	}
+}
+
+select {
+	color: whitesmoke;
+	background-color: orangered;
+	padding: 1ex 2em;
+	margin: 1ex 0;
+
+	option {
+		color: black;
+		background-color: $mc-orange;
+	
+		:disabled {
+			text-decoration: underline;
+		}
+	}
+}
+
+.title-container {
+	height: 20vh;
+	margin: 2ex 1em;
+	
+	div{
+		display: inline-block;
+		*display: inline;
+		margin: 0 1em;
+	}
+
+	.title-logo {
+		height: inherit;
+		position: absolute;	// Element ignores default HTML positioning */
+		z-index: 1;			//Places element below the text */
+
+		img {
+			height: 75%;
+		}
+	}
+	
+	.title-text {
+		width: 100%;  		// Ensures text is at center of screen
+		text-align: center; // Ensures text is at center of screen
+		z-index: auto;  	// Places element above the logo
+	}
+}
+
+.horz-container  {	
+	width: 100vw;
+	height: 70vh;
+	margin: 0 1em;
+	
+	.content-panel {
+		vertical-align: top;
+		display: inline-block;
+		*display: inline;
+		margin: 0 1em;
+	}
+	
+	.reactor-commands {
+		width: 15%;
+		margin-left: 0;
+		.button-stack {
+			display: flex; 
+			flex-direction: column;
+		}
+	}	
+	.reactor-console {
+		width: 30%;
+		height: inherit;
+		text-align: center;
+		margin-left: auto;
+		margin-right: auto;	
+		
+		.console {
+			width: 100%;
+			height: 90%;
+			color: whitesmoke;
+			background-color: black;
+			text-align: left;
+			
+			span {
+				font-family: monospace;
+			}
+		}
+	}
+	
+	.reactor-dataplots {
+		width: 50%;
+		height: inherit;
+		margin-left: 2em;
+
+		#dataplot-selectors select option#selected {
+			/* font-weight: bolder; */
+			background-color: #B29C77;
+		}
+		
+		#dataplot-selectors select option.set {
+			font-weight: bolder;
+		}
+		
+		#dataplot-selectors select option.series {
+			font-style: italic;
+		}
+	}
+}
