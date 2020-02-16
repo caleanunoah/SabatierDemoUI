@@ -165,10 +165,14 @@ export function update(dataset: Dataset) {
 	micro.options.scales.xAxes[0].ticks.suggestedMax = Math.ceil(max_xval / 2) * 2;
 	
 	// Convolute the macro-scale plot data so we don't keep re-rendering a ton of data
-	if (macro.data.datasets.some((s: Chart.ChartDataSets) => s.data.length > MAX_MACRO_POINTS))
+	for (const s of macro.data.datasets)
 	{
-		convolute_chart(macro, CONVOLUTER_STRENGTH);
-		MAX_MACRO_POINTS *= 1.20;		
+		if (s.data.length > MAX_MACRO_POINTS)
+		{
+			convolute_chart(macro, CONVOLUTER_STRENGTH);
+			MAX_MACRO_POINTS = s.data.length * 1.20;
+			break;
+		}
 	}
 	
 	// Cut off the micro-scale plot
@@ -195,7 +199,6 @@ export function select(dataset: Dataset, visible_dataset_id?: number)
 {
 	function configure_chart(chart: Chart) {
 		chart.data.datasets = [];  // Don't do .length = 0, as this may clear the actual dataset
-		// console.log("---------");
 		
 		const colors = ["#00AAAA", "#FF0000", "#0000FF", "#B8860B"];
 		for (let i = 0; i < dataset.series.length; i++)
@@ -255,52 +258,32 @@ export function select(dataset: Dataset, visible_dataset_id?: number)
 function convolute_chart(chart: Chart, strength: number)
 {
 	if (strength < 0)
-		throw new RangeError("Convoluter strength must be greater than zero!");
+		throw new RangeError("Convoluter strength cannot be less than zero!");
 	
 	for (let i = 0; i < chart.data.datasets.length; i++)
 	{
-		if (chart.data.datasets[i].data.length === 0)
-			break;
+		// Create a convolution buffer so that we can delete data 
+		// without affecting the chart object
+		let conv_buffer = macro.data.datasets[i].data;
 		
-		// Create a convolution buffer for convenience
-		let conv_buffer = macro.data.datasets[i].data as Array<Chart.ChartPoint>;
-
-		// We'll start with the first value and convolute data
-		// based on divergence from it. Once a value diverges
-		// significantly, base is assigned that value (in loop).
-		let base: number = null;
-		let last: Chart.ChartPoint = conv_buffer[conv_buffer.length - 1];
-		
-		// Assign the data to the actual chart array,
-		// rather than our buffer
-		conv_buffer = conv_buffer.filter((dp: Chart.ChartPoint) =>
+		// Loop over the entire dataset, excluding the most recent element,
+		// in reverse order and three elements at a time. 
+		for (let n = conv_buffer.length - 1; n > 3; n--)
 		{
-			let val = dp.y as number;
-			// CONVOLUTION ALGORITHM:
-			// 1. If our base is null, we haven't set it yet.
-			// 	   This preserves the first value of the series.
-			// 2. If our percent error is within the strength of the
-			//    convoluter, remove the datapoint.
-			// 3. If neither of the above conditions are met, keep the datapoint.
-			if (base == null)
-			{
-				base = val;
-				return true;
-			}	
-			else if (Math.abs(val - base) / Math.abs(base) > strength)
-			{
-				base = val;
-				return true;
-			}
-			else
-				return false;
-		});
+			// Get three neighboring elements of the array.
+			// We only care about their y-values, so extract those.
+			const [x3, x2, x1] = conv_buffer.slice(n - 3, n)
+				// @ts-ignore
+				.map((dp: Chart.ChartPoint) => dp.y as number);
+			
+			// Convolute the data:
+			// 	If the percent difference of x3 and x1 is within the convoluter strength, 
+			// 	then we consider x2 as being unimportant to the overall trend of the data.
+			if (Math.abs(x1 - x3) / (Math.abs(x1)/2 + Math.abs(x3)/2) < strength)
+				conv_buffer.splice(n - 2, 1);
+		}
 		
-		// Make sure the most recent value is pushed, ensuring we can
-		// always generate a curve.
-		conv_buffer.push(last);
-		
-		// Repopulate the chart data array with the convoluted data.
-		macro.data.datasets[i].data = conv_buffer;
+		// Repopulate the chart series with the convoluted data.
+		chart.data.datasets[i].data = conv_buffer;
 	}
 }
