@@ -1,11 +1,15 @@
 {
-  "name": "electron-boilerplate",
-  "productName": "Electron Boilerplate",
-  "description": "Starter for your Electron application",
-  "version": "0.0.0",
+  "name": "sabatier-test-reactor-ui",
+  "productName": "Sabatier Test Reactor UI",
+  "description": "UBC Mars Colony test reactor graphical user interface for scale Sabatier reactor. Will be used in ASCE/IAC papers and inform future UI design.",
+  "version": "0.1.2",
   "private": true,
-  "author": "Thomas Richmond <thomas.joakim@gmail.com>",
-  "copyright": "© 2019, UBC Mars Colony",
+  "contributors": [
+	"Thomas Richmond <thomas.joakim@gmail.com>",
+	"Thomas Clarito",
+	"Daniel Kong"
+  ],
+  "copyright": "© 2020, UBC Mars Colony",
   "homepage": "https://ubcmarscolony.wordpress.com/",
   "main": "app/background.js",
   "build": {
@@ -17,7 +21,7 @@
       "package.json"
     ],
     "directories": {
-      "buildResources": "resources"
+      "buildResources": "res"
     },
     "publish": null
   },
