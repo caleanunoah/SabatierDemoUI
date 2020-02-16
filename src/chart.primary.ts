@@ -2,7 +2,8 @@ import { Dataset, Datapoint } from "./models/data.model";
 import Chart from "chart.js";
 
 const MICRO_TIME_SPAN = 15;
-let MAX_MACRO_POINTS = 100;
+let MAX_MACRO_POINTS = 1;
+const CONVOLUTER_STRENGTH = 0.20
 
 export let micro: Chart = null;
 export let macro: Chart = null;
@@ -145,7 +146,9 @@ export function update(dataset: Dataset) {
 		if (i === -1)
 			break;
 
-		const mapped_data = series.data.map((dp: Datapoint) => ({x: dp.time, y: dp.value}) as Chart.ChartPoint);
+		const mapped_data = series.data
+			.map((dp: Datapoint) => ({x: dp.time, y: dp.value}) as Chart.ChartPoint)
+			.filter((cp: Chart.ChartPoint) => cp.x != undefined && cp.y != undefined);
 		// @ts-ignore
 		macro.data.datasets[i].data = macro.data.datasets[i].data.concat(mapped_data);
 		// @ts-ignore
@@ -161,38 +164,16 @@ export function update(dataset: Dataset) {
 	macro.options.scales.xAxes[0].ticks.suggestedMax = Math.ceil(max_xval / 2) * 2;
 	micro.options.scales.xAxes[0].ticks.suggestedMax = Math.ceil(max_xval / 2) * 2;
 	
-	// Minify the macro-scale plot data if it's too large
-	// for (let i = 0; i < macro.data.datasets.length; i++)
-	// {
-		// if (macro.data.datasets[i].data.length > MAX_MACRO_POINTS)
-		// {
-			// let base = macro.data.datasets[i].data
-				// // @ts-ignore
-				// .filter((dp: Chart.ChartPoint) => dp.y)
-				// // @ts-ignore
-				// .reduce((sum: number, next: number) => sum + next);
-			// base /= macro.data.datasets[i].data.length;
-
-			// macro.data.datasets[i].data = 
-				// // @ts-ignore
-				// macro.data.datasets[i].data.filter((dp: Chart.ChartPoint) => {
-					// if (
-					// Math.abs(
-					// dp.y - 
-					// base) / 
-					// Math.abs(base) > 
-					// 0.20)
-					// {
-						// base = dp.y;
-						// return true;
-					// }
-					// else
-						// return false;
-				// });
-			
-			// MAX_MACRO_POINTS += macro.data.datasets[i].data.length;
-		// }
-	// }
+	// Convolute the macro-scale plot data so we don't keep re-rendering a ton of data
+	for (const s of macro.data.datasets)
+	{
+		if (s.data.length > MAX_MACRO_POINTS)
+		{
+			convolute_chart(macro, CONVOLUTER_STRENGTH);
+			MAX_MACRO_POINTS = s.data.length * 1.20;
+			break;
+		}
+	}
 	
 	// Cut off the micro-scale plot
 	// 1. Make sure the axis scales consistently
@@ -205,6 +186,7 @@ export function update(dataset: Dataset) {
 			// @ts-ignore
 			micro.data.datasets[i].data.filter((dp: Chart.ChartPoint) => dp.x > micro_cutoff);
 	
+	// Push the update to the screen
 	micro.update();
 	macro.update();
 }
@@ -213,10 +195,10 @@ export function update(dataset: Dataset) {
 //		type_id: ID of the type of data to show;
 //		dataset_id: ID of the specific dataset of the type
 // If x_axis is undefined, it defaults to time
-export function select(dataset: Dataset, visible_dataset_id?: number) {
+export function select(dataset: Dataset, visible_dataset_id?: number)
+{
 	function configure_chart(chart: Chart) {
 		chart.data.datasets = [];  // Don't do .length = 0, as this may clear the actual dataset
-		// console.log("---------");
 		
 		const colors = ["#00AAAA", "#FF0000", "#0000FF", "#B8860B"];
 		for (let i = 0; i < dataset.series.length; i++)
@@ -243,12 +225,65 @@ export function select(dataset: Dataset, visible_dataset_id?: number) {
 			chart.options.scales.xAxes[0].scaleLabel.labelString = 'Time [s]';
 			chart.options.scales.yAxes[0].scaleLabel.labelString = '[' + dataset.units + ']';
 		}
-		chart.update();
 	};
 	
+	// Set the charts to the current data
 	configure_chart(macro);
 	configure_chart(micro);
 	
+	// Reduce the amount of data we show
+	convolute_chart(macro, CONVOLUTER_STRENGTH)
+	
+	// Update the chart visuals
+	macro.update();
+	micro.update();
+	
 	document.getElementById("dataplot-title").innerHTML = dataset.name;
 	current_plot = dataset.name;
+}
+
+/*
+ * Author: Thomas Richmond
+ * Purpose: Reduce the number of datapoints in the chart such that we
+ *			retain as few points as needed while still indicating the
+ *			plot behaviour. For instance, the sequential values 
+ *			{ 0.9, 1.1, 1.05, 1.02, 0.95 } may as well be represented by
+ *			a single datapoint (~1) and we can let a bezier curve fit the
+ *			rest of the the data.
+ * Parameters: chart [Chart] - The chart whose data you wish to convolute
+ *			   strength [number] - The maximum percent error between datapoints
+ *			 					   for which data will be convoluted.
+ *								   Value must be positive.
+ */
+function convolute_chart(chart: Chart, strength: number)
+{
+	if (strength < 0)
+		throw new RangeError("Convoluter strength cannot be less than zero!");
+	
+	for (let i = 0; i < chart.data.datasets.length; i++)
+	{
+		// Create a convolution buffer so that we can delete data 
+		// without affecting the chart object
+		let conv_buffer = macro.data.datasets[i].data;
+		
+		// Loop over the entire dataset, excluding the most recent element,
+		// in reverse order and three elements at a time. 
+		for (let n = conv_buffer.length - 1; n > 3; n--)
+		{
+			// Get three neighboring elements of the array.
+			// We only care about their y-values, so extract those.
+			const [x3, x2, x1] = conv_buffer.slice(n - 3, n)
+				// @ts-ignore
+				.map((dp: Chart.ChartPoint) => dp.y as number);
+			
+			// Convolute the data:
+			// 	If the percent difference of x3 and x1 is within the convoluter strength, 
+			// 	then we consider x2 as being unimportant to the overall trend of the data.
+			if (Math.abs(x1 - x3) / (Math.abs(x1)/2 + Math.abs(x3)/2) < strength)
+				conv_buffer.splice(n - 2, 1);
+		}
+		
+		// Repopulate the chart series with the convoluted data.
+		chart.data.datasets[i].data = conv_buffer;
+	}
 }
