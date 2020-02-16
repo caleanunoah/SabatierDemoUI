@@ -17,7 +17,9 @@ app.once('ready', () => {
 		// set the background color to black
 		backgroundColor: "#111",
 		// Don't show the window until it's ready, this prevents any white flickering
-		show: false
+		show: false,
+		// Set icon to Sabatier project logo
+		icon: path.join(__dirname, "../assets/sabatier-logo.png")
 	})
 
 	window.loadURL(path.join(__dirname, "../window.html"));
