@@ -12,6 +12,7 @@ app.once('ready', () => {
 		width: 1366,
 		// Set the initial height to 400px
 		height: 768,
+		fullscreen: true,
 		// set the title bar style
 		titleBarStyle: 'hiddenInset',
 		// set the background color to black
