@@ -23,28 +23,8 @@ import * as charts from "./dist/window.charts";
 // IIFE To initialize the window
 $(() => {
 	charts.init_charts();
-	charts.init_selector(reactor_data.datasets.map((dataset: Dataset) => {
-		const selector_elements = [{
-			label: dataset.name,
-			id: dataset.id,
-			set_or_series: "set"
-		}];
-		
-		for (const series of dataset.series)
-		{
-			selector_elements.push({
-				label: series.name,
-				id: dataset.id,
-				set_or_series: "series"
-			});
-		}
-		
-		return selector_elements;
-	}));
-
-	// reactor_status = 	require('./window.reactorstatus');
-	// temperature_plot = 	require('./window.temperatureplot');
-	// massflow_plot =		require('./window.massflowplot');	
+	charts.init_selector(reactor_data.datasets);
+	
 	charts.primary.select(reactor_data.datasets[0]);
 	notebook.append("UBC MARS COLONY\nReactor UI Initialized Successfully\n");
 });
@@ -55,7 +35,7 @@ $(document).ready(function () {
 		if (serial.connected())
 			return;
 		serial.detect()
-			.then((ports: Array<any>) => {
+			.then((ports: Array<any>) => {			
 				// console.log(ports)
 				if (ports.length === 0)
 				{
@@ -97,21 +77,29 @@ $(document).ready(function () {
 
 function select_plot(selector: HTMLSelectElement)
 {
-	// Determines a dataset from the data
-	const dataset = reactor_data.datasets.find((dset: Dataset) => dset.id === Number(selector.value));
-	if (!dataset)
-		return;
-	if (selector.options[selector.selectedIndex].className === "series")
-		charts.primary.select(dataset, dataset.series.find((ds: Dataseries) => selector.options[selector.selectedIndex].innerHTML.includes(ds.name)).id);
-	else
-		charts.primary.select(dataset);
+	// Retrieve and parse the datakey as follows:
+	// 	- The number before the colon is the dataset ID, and is required; 
+	//	- The number after the colon is the dataseries ID, and is optional.
+	const datakey = selector.options[selector.selectedIndex].value.split(':');
+	let dataset: Dataset;
+	let series: Array<number>;
 	
-	// Highlights the selected option
+	if (datakey[0] == undefined)
+		throw new Error("Selector was unable to find a dataset associated with element: " + selector.innerHTML)
+	dataset = reactor_data.datasets.find((dset: Dataset) => dset.id === Number(datakey[0]));
+	
+	if (datakey[1] != undefined)
+		series = datakey[1].split(',').map(Number);
+
+	// If no series were specified, that field remains undefined, and is subsequently ignored by the function.
+	charts.primary.select(dataset, series);
+	
+	// Highlights the selected option while turning off all other selected options
 	for (let i = 0; i < selector.options.length; i++)
 		selector.options[i].id =
 			i === selector.selectedIndex ? "selected" : "";
 	// Sets the option to the title option
-	selector.value = "title";	
+	selector.value = "title";
 }
 
 function routine_connect_toggle()

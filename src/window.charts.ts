@@ -1,3 +1,4 @@
+import { Dataset, Dataseries } from "./models/data.model";
 import * as primary from "./chart.primary";
 import * as popped from "./chart.popped";
 export { primary, popped };
@@ -10,25 +11,33 @@ export function init_charts()
 	primary.init();
 }
 
-type SetOrSeries = "set" | "series";
-type SelectorOption = Array<{
-	label: string,
-	id: number,
-	set_or_series: SetOrSeries
-}>;
-export function init_selector(selector_options: Array<SelectorOption>)
+/* Author: Thomas Richmond
+ * Description: Populates the chart selector with a nested-style list
+ *				encompassing each dataset in the reactor_data.json resource file.
+ *				The list automatically accomodates new entries into this file.
+ * Purpose: datasets [Array<Dataset>] - All plottable datasets. Note: For this to
+ *										work properly, each dataset and associated
+ *										dataseries must have a name and ID.
+ */
+export function init_selector(datasets: Array<Dataset>)
 {
-	console.log(selector_options);
-	const plot_select_el = document.getElementById('dataplot-selector-preset'); 
-	for (let opt of selector_options)
+	// Get the HTML selector element. We will populate its fields below.
+	const plot_selector = document.getElementById('dataplot-selector-preset') as HTMLSelectElement; 
+	
+	// Iterate over every dataset in the provided array.
+	// Each dataset and all of its series will be added to the selector.
+	for (let dset of datasets)
 	{
-		for (let i = 0; i < opt.length; i++)
-		{
-			if (opt[i].set_or_series === "series")
-				opt[i].label = '&emsp;' + opt[i].label;
-				
-			plot_select_el.innerHTML +=
-				'<option class="' + opt[i].set_or_series + '" value="' + opt[i].id + '">' + opt[i].label + '</option>'; 
-		}
+		// The "primary" option corresponds to the entire dataset. When selected, all dataseries
+		// within the dataset are shown on the plot.
+		plot_selector.innerHTML +=
+			"<option class='set' value='" + dset.id + "'>" + dset.name + "</option>"
+		
+		// Iterate over each series within the dataset
+		for (let dser of dset.series)
+			// The 'secondary' options correspond to the indiviudal series within a dataset. When selected,
+			// that dataseries will be shown on the plot.
+			plot_selector.innerHTML +=
+				"<option class='series' value='" + dset.id + ":" + dser.id + "'>&nbsp;" + dser.name + "</option>";
 	}
 }
