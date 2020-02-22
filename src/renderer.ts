@@ -75,33 +75,6 @@ $(document).ready(function () {
 	}, 500);
 });
 
-function select_plot(selector: HTMLSelectElement)
-{
-	// Retrieve and parse the datakey as follows:
-	// 	- The number before the colon is the dataset ID, and is required; 
-	//	- The number after the colon is the dataseries ID, and is optional.
-	const datakey = selector.options[selector.selectedIndex].value.split(':');
-	let dataset: Dataset;
-	let series: Array<number>;
-	
-	if (datakey[0] == undefined)
-		throw new Error("Selector was unable to find a dataset associated with element: " + selector.innerHTML)
-	dataset = reactor_data.datasets.find((dset: Dataset) => dset.id === Number(datakey[0]));
-	
-	if (datakey[1] != undefined)
-		series = datakey[1].split(',').map(Number);
-
-	// If no series were specified, that field remains undefined, and is subsequently ignored by the function.
-	charts.primary.select(dataset, series);
-	
-	// Highlights the selected option while turning off all other selected options
-	for (let i = 0; i < selector.options.length; i++)
-		selector.options[i].id =
-			i === selector.selectedIndex ? "selected" : "";
-	// Sets the option to the title option
-	selector.value = "title";
-}
-
 function routine_connect_toggle()
 {
 	if (serial.connected())
