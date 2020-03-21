@@ -83,18 +83,16 @@ select {
 .horz-container  {	
 	width: 100vw;
 	height: 70vh;
-	margin: 0 1em;
+	margin: 0 1%;
 	
 	.content-panel {
 		vertical-align: top;
 		display: inline-block;
 		*display: inline;
-		margin: 0 1em;
 	}
 	
 	.reactor-commands {
 		width: 15%;
-		margin-left: 0;
 		.button-stack {
 			display: flex; 
 			flex-direction: column;
@@ -121,9 +119,8 @@ select {
 	}
 	
 	.reactor-dataplots {
-		width: 50%;
+		width: 49%;
 		height: inherit;
-		margin-left: 2em;
 
 		#dataplot-selectors select option#selected {
 			/* font-weight: bolder; */
