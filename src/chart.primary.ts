@@ -2,7 +2,6 @@ import { Dataset, Datapoint } from "./models/data.model";
 import Chart from "chart.js";
 
 const MICRO_TIME_SPAN = 15;
-let MAX_MACRO_POINTS = 1;
 const CONVOLUTER_STRENGTH = 0.20
 
 export let micro: Chart = null;
@@ -165,15 +164,7 @@ export function update(dataset: Dataset) {
 	micro.options.scales.xAxes[0].ticks.suggestedMax = Math.ceil(max_xval / 2) * 2;
 	
 	// Convolute the macro-scale plot data so we don't keep re-rendering a ton of data
-	for (const s of macro.data.datasets)
-	{
-		if (s.data.length > MAX_MACRO_POINTS)
-		{
-			convolute_chart(macro, CONVOLUTER_STRENGTH);
-			MAX_MACRO_POINTS = s.data.length * 1.20;
-			break;
-		}
-	}
+	convolute_chart(macro, CONVOLUTER_STRENGTH);
 	
 	// Cut off the micro-scale plot
 	// 1. Make sure the axis scales consistently
@@ -250,10 +241,10 @@ export function select(dataset: Dataset, visible_dataset_id?: number)
  *			{ 0.9, 1.1, 1.05, 1.02, 0.95 } may as well be represented by
  *			a single datapoint (~1) and we can let a bezier curve fit the
  *			rest of the the data.
- * Parameters: chart [Chart] - The chart whose data you wish to convolute
- *			   strength [number] - The maximum percent error between datapoints
- *			 					   for which data will be convoluted.
- *								   Value must be positive.
+ * Parameters:  chart [Chart] - The chart whose data you wish to convolute
+ *		strength [number] - The maximum percent error between datapoints
+ *					for which data will be convoluted.
+ *					Value must be positive.
  */
 function convolute_chart(chart: Chart, strength: number)
 {
