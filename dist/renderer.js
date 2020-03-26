@@ -46,7 +46,7 @@ $(function () {
     // temperature_plot = 	require('./window.temperatureplot');
     // massflow_plot =		require('./window.massflowplot');	
     charts.primary.select(reactor_data_1.default.datasets[0]);
-    notebook.append("UBC MARS COLONY\nReactor UI Initialized Successfully\n");
+    notebook.append("UBC\n");
 });
 $(document).ready(function () {
     status_indicator.update(status_indicator.SCANNING);
